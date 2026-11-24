@@ -1,0 +1,23 @@
+﻿rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/items/{itemId} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function validItem() {
+        return request.resource.data.keys().hasOnly(['name', 'quantity', 'createdAt'])
+          && request.resource.data.keys().hasAll(['name', 'quantity'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.quantity is int;
+      }
+
+      allow read: if isOwner();
+      allow create: if isOwner() && validItem();
+      allow update: if isOwner() && validItem();
+      allow delete: if isOwner();
+    }
+  }
+}
