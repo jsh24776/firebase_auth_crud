@@ -7,11 +7,13 @@ service cloud.firestore {
       }
 
       function validItem() {
-        return request.resource.data.keys().hasOnly(['name', 'quantity', 'createdAt'])
+        return request.resource.data.keys().hasOnly(['name', 'quantity', 'imageUrl', 'isFavorite', 'createdAt'])
           && request.resource.data.keys().hasAll(['name', 'quantity'])
           && request.resource.data.name is string
           && request.resource.data.name.size() > 0
-          && request.resource.data.quantity is int;
+          && request.resource.data.quantity is int
+          && (!('imageUrl' in request.resource.data) || request.resource.data.imageUrl is string)
+          && (!('isFavorite' in request.resource.data) || request.resource.data.isFavorite is bool);
       }
 
       allow read: if isOwner();
